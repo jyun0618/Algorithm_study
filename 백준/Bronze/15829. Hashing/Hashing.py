@@ -7,5 +7,5 @@ for l in range(L):
     for i in range(26):
         if seq[l] == alphabet[i]:
             h += (i+1)*31**l
-print(h)
+print(h%1234567891)
     
