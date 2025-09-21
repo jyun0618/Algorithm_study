@@ -1,0 +1,40 @@
+# WITH T1 AS (
+#     SELECT 
+#         ID,
+#         SIZE_OF_COLONY,
+#         RANK() OVER (ORDER BY SIZE_OF_COLONY DESC) / (SELECT COUNT(*) FROM ECOLI_DATA)
+#             AS SIZE_PERCENT
+#     FROM ECOLI_DATA
+# )
+
+# SELECT
+#     ID,
+#     CASE
+#         WHEN SIZE_PERCENT BETWEEN 0 AND 0.25 THEN 'CRITICAL'
+#         WHEN SIZE_PERCENT BETWEEN 0.26 AND 0.50 THEN 'HIGH'
+#         WHEN SIZE_PERCENT BETWEEN 0.51 AND 0.75 THEN 'MEDIUM'
+#         ELSE 'LOW'
+#     END AS COLONY_NAME
+# FROM T1
+# ORDER BY ID
+
+# # SELECT * FROM T1
+
+
+WITH QUARTILE AS (
+    SELECT
+        ID,
+        NTILE(4) OVER (ORDER BY SIZE_OF_COLONY DESC) AS quartile
+    FROM ECOLI_DATA
+)
+
+SELECT
+    ID,
+    CASE
+        WHEN quartile = 1 THEN 'CRITICAL'
+        WHEN quartile = 2 THEN 'HIGH'
+        WHEN quartile = 3 THEN 'MEDIUM'
+        WHEN quartile = 4 THEN 'LOW'
+    END AS COLONY_NAME
+FROM QUARTILE
+ORDER BY ID
